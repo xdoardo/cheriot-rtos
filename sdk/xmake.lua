@@ -301,7 +301,11 @@ rule("cheriot.component")
 		-- Link using the compartment's linker script.
 		batchcmds:show_progress(opt.progress, "linking " .. target:get("cheriot.type") .. ' ' .. target:filename())
 		batchcmds:mkdir(target:targetdir())
-		batchcmds:vrunv(target:tool("ld"), table.join({"--script=" .. linkerscript, "--compartment", "--gc-sections", "--relax", "-o", target:targetfile()}, target:objectfiles()), opt)
+		local extra_ldflags = target:get("ldflags")
+		if extra_ldflags == nil then 
+		  extra_ldflags = {}
+		end
+		batchcmds:vrunv(target:tool("ld"), table.join({"--script=" .. linkerscript, "--compartment", "--gc-sections", "--relax", "-o", target:targetfile()}, target:objectfiles(), extra_ldflags), opt)
 		-- This depends on all of the object files and the linker script.
 		batchcmds:add_depfiles(linkerscript)
 		batchcmds:add_depfiles(target:objectfiles())
